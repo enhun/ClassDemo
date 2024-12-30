@@ -1,0 +1,45 @@
+﻿@model IEnumerable<Model_CoreFirst_Home.Models.Book>
+
+@{
+    ViewData["Title"] = "美食分享";
+}
+
+<div class="container">
+    <h1 class="text-center my-4">美食分享牆</h1>
+
+    <div class="text-end mb-4">
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fas fa-plus"></i> 分享美食
+        </a>
+    </div>
+
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-6 mb-4">
+                <div class="card h-100">
+                    <img src="~/BookPhotos/@item.Photo"
+                         class="card-img-top"
+                         style="height: 300px; object-fit: cover;"
+                         alt="@item.Title">
+
+                    <div class="card-body">
+                        <h5 class="card-title">@item.Title</h5>
+                        <p class="card-text">@item.Description</p>
+                    </div>
+
+                    <div class="card-footer text-muted">
+                        <small>
+                            由 @item.Author 發表於 @item.TimeStamp.ToString("yyyy/MM/dd HH:mm")
+                        </small>
+                        <a asp-action="Display"
+                           asp-route-id="@item.BookID"
+                           class="btn btn-sm btn-outline-primary float-end">
+                            查看詳情
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

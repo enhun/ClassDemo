@@ -1,0 +1,146 @@
+﻿@model Model_CoreFirst_Home.Models.Book
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">貼文詳細內容</h2>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    @if (!string.IsNullOrEmpty(Model.Photo))
+                    {
+                        <img src="~/BookPhotos/@Model.Photo"
+                             alt="@Model.Title"
+                             class="img-fluid rounded mb-3" />
+                    }
+                </div>
+                <div class="col-md-8">
+                    <dl class="row">
+                        <dt class="col-sm-3">
+                            @Html.DisplayNameFor(model => model.Title)
+                        </dt>
+                        <dd class="col-sm-9">
+                            @Html.DisplayFor(model => model.Title)
+                        </dd>
+
+                        <dt class="col-sm-3">
+                            @Html.DisplayNameFor(model => model.Author)
+                        </dt>
+                        <dd class="col-sm-9">
+                            @Html.DisplayFor(model => model.Author)
+                        </dd>
+
+                        <dt class="col-sm-3">
+                            @Html.DisplayNameFor(model => model.TimeStamp)
+                        </dt>
+                        <dd class="col-sm-9">
+                            @Model.TimeStamp.ToString("yyyy/MM/dd HH:mm:ss")
+                        </dd>
+
+                        <dt class="col-sm-3">
+                            @Html.DisplayNameFor(model => model.Description)
+                        </dt>
+                        <dd class="col-sm-9">
+                            <div class="border rounded p-3 bg-light">
+                                @Html.DisplayFor(model => model.Description)
+                            </div>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <div class="btn-group">
+                <a asp-action="Edit"
+                   asp-route-id="@Model?.BookID"
+                   class="btn btn-primary">編輯貼文</a>
+                <a asp-action="Index"
+                   class="btn btn-secondary">返回列表</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加留言區塊 -->
+    <div class="card mt-4">
+        <div class="card-header bg-light">
+            <h4 class="mb-0">留言區</h4>
+        </div>
+        <div class="card-body">
+            <!-- 新增留言表單 -->
+            <form asp-controller="PostBooks" asp-action="AddReply" method="post" class="mb-4">
+                <input type="hidden" name="BookID" value="@Model.BookID" />
+                <div class="mb-3">
+                    <label class="form-label">留言者</label>
+                    <input type="text" name="Author" class="form-control" required maxlength="20"
+                           placeholder="請輸入您的名字" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">留言內容</label>
+                    <textarea name="Description" class="form-control" rows="3" required
+                              placeholder="寫下您的想法..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-paper-plane"></i> 發表留言
+                </button>
+            </form>
+
+            <!-- 顯示留言列表 -->
+            <h5 class="mt-4 mb-3">
+                <i class="fas fa-comments"></i>
+                所有留言 (@(Model.ReBooks?.Count ?? 0))
+            </h5>
+
+            @if (Model.ReBooks != null && Model.ReBooks.Any())
+            {
+                foreach (var reply in Model.ReBooks.OrderByDescending(r => r.TimeStamp))
+                {
+                    <div class="card mb-3 border-left-primary">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-user"></i> @reply.Author
+                                </h6>
+                                <small class="text-muted">
+                                    <i class="fas fa-clock"></i>
+                                    @reply.TimeStamp.ToString("yyyy/MM/dd HH:mm:ss")
+                                </small>
+
+                                <!-- 添加刪除按鈕 -->
+                                <form asp-action="DeleteReply" method="post" style="display: inline;">
+                                    <input type="hidden" name="replyId" value="@reply.ReBookID" />
+                                    <input type="hidden" name="bookId" value="@Model.BookID" />
+                                    <button type="submit" class="btn btn-danger btn-sm"
+                                            onclick="return confirm('確定要刪除這則留言嗎？');">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <p class="card-text mb-0">@reply.Description</p>
+
+
+                    </div>
+                            <p class="card-text mb-0">@reply.Description</p>
+                      
+                  
+                }
+            }
+            else
+            {
+                <div class="alert alert-info" role="alert">
+                    <i class="fas fa-info-circle"></i>
+                    目前還沒有留言，成為第一個留言的人吧！
+                </div>
+            }
+        </div>
+    </div>
+</div>
+<style>
+    .border-left-primary {
+        border-left: 4px solid #007bff;
+    }
+</style>
