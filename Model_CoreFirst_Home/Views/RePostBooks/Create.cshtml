@@ -1,0 +1,28 @@
+﻿@model Model_CoreFirst_Home.Models.ReBook
+
+<div class="modal-header">
+    <h5 class="modal-title">新增回覆</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body">
+    <form id="createReplyForm" asp-action="Create" asp-controller="RePostBooks">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="BookID" />
+
+        <div class="mb-3">
+            <label asp-for="Author" class="form-label"></label>
+            <input asp-for="Author" class="form-control" />
+            <span asp-validation-for="Author" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Description" class="form-label"></label>
+            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+    <button type="button" class="btn btn-primary" id="submitReply">發表回覆</button>
+</div>
