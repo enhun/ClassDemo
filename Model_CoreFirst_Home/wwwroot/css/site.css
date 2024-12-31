@@ -20,3 +20,16 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.preserve-whitespace {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.border-left-primary {
+    border-left: 4px solid #007bff;
+}
+
+.shadow-sm {
+    box-shadow: 0 .125rem .25rem rgba(0,0,0,.075) !important;
+}

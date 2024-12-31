@@ -71,7 +71,7 @@ namespace Model_CoreFirst_Home.Controllers
             {
                 var book = await _context.Book
                     .Include(b => b.ReBooks)
-                    .FirstOrDefaultAsync(m => m.BookID == id);
+                    .FirstOrDefaultAsync(b => b.BookID == id);
 
                 if (book == null)
                 {
@@ -86,77 +86,6 @@ namespace Model_CoreFirst_Home.Controllers
                 return StatusCode(500, "An error occurred while processing your request.");
             }
         }
-
-        // 在這裡加入新的 AddReply action
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddReply(string BookID, string Author, string Description)
-        {
-            if (string.IsNullOrEmpty(BookID) || string.IsNullOrEmpty(Author) || string.IsNullOrEmpty(Description))
-            {
-                TempData["Error"] = "請填寫所有必要欄位";
-                return RedirectToAction(nameof(Display), new { id = BookID });
-            }
-
-            try
-            {
-                var reply = new ReBook
-                {
-                    ReBookID = Guid.NewGuid().ToString(),
-                    BookID = BookID,
-                    Author = Author.Trim(),
-                    Description = Description.Trim(),
-                    TimeStamp = DateTime.Now
-                };
-
-                _context.ReBook.Add(reply);
-                await _context.SaveChangesAsync();
-
-                TempData["Success"] = "留言發表成功！";
-            }
-            catch (Exception ex)
-            {
-                TempData["Error"] = "留言發表失敗，請稍後再試";
-            }
-
-            return RedirectToAction(nameof(Display), new { id = BookID });
-        }
-
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteReply(string replyId, string bookId)
-        {
-            if (string.IsNullOrEmpty(replyId))
-            {
-                TempData["Error"] = "無效的留言ID";
-                return RedirectToAction(nameof(Display), new { id = bookId });
-            }
-
-            try
-            {
-                var reply = await _context.ReBook.FindAsync(replyId);
-                if (reply != null)
-                {
-                    _context.ReBook.Remove(reply);
-                    await _context.SaveChangesAsync();
-                    TempData["Success"] = "留言已成功刪除";
-                }
-                else
-                {
-                    TempData["Error"] = "找不到該留言";
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "刪除留言時發生錯誤");
-                TempData["Error"] = "刪除留言失敗，請稍後再試";
-            }
-
-            return RedirectToAction(nameof(Display), new { id = bookId });
-        }
-
-
 
         // GET: PostBooks/Create
         public IActionResult Create()
@@ -175,27 +104,27 @@ namespace Model_CoreFirst_Home.Controllers
                 {
                     if (book.ImageFile != null)
                     {
-                        if (!ValidateImageFile(book.ImageFile))
+                        if (!ValidateBookImageFile(book.ImageFile))
                         {
                             return View(book);
                         }
 
-                        book.Photo = await SaveImageFile(book.ImageFile);
+                        book.Photo = await SaveBookImageFile(book.ImageFile);
                     }
 
                     book.TimeStamp = DateTime.Now;
                     _context.Add(book);
                     await _context.SaveChangesAsync();
-
-                    _logger.LogInformation($"Successfully created book with ID {book.BookID}");
+                    TempData["Success"] = "貼文新增成功！";
                     return RedirectToAction(nameof(Index));
                 }
+
                 return View(book);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Error occurred while creating book");
-                ModelState.AddModelError("", "An error occurred while saving the book. Please try again.");
+                ModelState.AddModelError("", "新增貼文時發生錯誤，請稍後再試。");
                 return View(book);
             }
         }
@@ -210,11 +139,13 @@ namespace Model_CoreFirst_Home.Controllers
 
             try
             {
-                var book = await _context.Book.FindAsync(id);
+                var book = await _context.Book.FirstOrDefaultAsync(b => b.BookID == id);
+
                 if (book == null)
                 {
                     return NotFound($"Book with ID {id} not found");
                 }
+
                 return View(book);
             }
             catch (Exception ex)
@@ -240,43 +171,29 @@ namespace Model_CoreFirst_Home.Controllers
                 {
                     if (book.ImageFile != null)
                     {
-                        if (!ValidateImageFile(book.ImageFile))
+                        if (!ValidateBookImageFile(book.ImageFile))
                         {
                             return View(book);
                         }
 
-                        // Delete old image
                         await DeleteImageFile(book.Photo);
-
-                        // Save new image
-                        book.Photo = await SaveImageFile(book.ImageFile);
+                        book.Photo = await SaveBookImageFile(book.ImageFile);
                     }
 
                     book.TimeStamp = DateTime.Now;
                     _context.Update(book);
                     await _context.SaveChangesAsync();
 
-                    _logger.LogInformation($"Successfully updated book with ID {book.BookID}");
+                    TempData["Success"] = "貼文已成功更新！";
                     return RedirectToAction(nameof(Index));
                 }
+
                 return View(book);
-            }
-            catch (DbUpdateConcurrencyException ex)
-            {
-                if (!BookExists(book.BookID))
-                {
-                    return NotFound($"Book with ID {id} not found");
-                }
-                else
-                {
-                    _logger.LogError(ex, $"Concurrency error occurred while updating book with ID {id}");
-                    throw;
-                }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Error occurred while updating book with ID {id}");
-                ModelState.AddModelError("", "An error occurred while saving changes. Please try again.");
+                ModelState.AddModelError("", "更新貼文時發生錯誤，請稍後再試。");
                 return View(book);
             }
         }
@@ -291,8 +208,7 @@ namespace Model_CoreFirst_Home.Controllers
 
             try
             {
-                var book = await _context.Book
-                    .FirstOrDefaultAsync(m => m.BookID == id);
+                var book = await _context.Book.FirstOrDefaultAsync(b => b.BookID == id);
 
                 if (book == null)
                 {
@@ -308,9 +224,6 @@ namespace Model_CoreFirst_Home.Controllers
             }
         }
 
-
-
-
         // POST: PostBooks/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
@@ -318,64 +231,37 @@ namespace Model_CoreFirst_Home.Controllers
         {
             try
             {
-                var book = await _context.Book.FindAsync(id);
+                var book = await _context.Book.Include(b => b.ReBooks).FirstOrDefaultAsync(b => b.BookID == id);
+
                 if (book != null)
                 {
-                    await DeleteImageFile(book.Photo);
+                    if (book.ReBooks != null && book.ReBooks.Any())
+                    {
+                        _context.ReBook.RemoveRange(book.ReBooks);
+                    }
+
+                    if (!string.IsNullOrEmpty(book.Photo))
+                    {
+                        await DeleteImageFile(book.Photo);
+                    }
+
                     _context.Book.Remove(book);
                     await _context.SaveChangesAsync();
-                    _logger.LogInformation($"Successfully deleted book with ID {id}");
+                    TempData["Success"] = "貼文已成功刪除";
                 }
+                else
+                {
+                    TempData["Error"] = "找不到該貼文";
+                }
+
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Error occurred while deleting book with ID {id}");
-                return StatusCode(500, "An error occurred while processing your request.");
+                TempData["Error"] = "刪除貼文時發生錯誤，請稍後再試。";
+                return RedirectToAction(nameof(Index));
             }
-        }
-
-        private bool BookExists(string id)
-        {
-            return _context.Book.Any(e => e.BookID == id);
-        }
-
-        private bool ValidateImageFile(IFormFile file)
-        {
-            if (file.Length > MaxFileSize)
-            {
-                ModelState.AddModelError("ImageFile", "File size cannot exceed 5MB");
-                return false;
-            }
-
-            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
-            if (!AllowedExtensions.Contains(extension))
-            {
-                ModelState.AddModelError("ImageFile", "Only .jpg, .jpeg and .png files are allowed");
-                return false;
-            }
-
-            return true;
-        }
-
-        private async Task<string> SaveImageFile(IFormFile file)
-        {
-            var uploadPath = Path.Combine(_hostEnvironment.WebRootPath, "BookPhotos");
-
-            if (!Directory.Exists(uploadPath))
-            {
-                Directory.CreateDirectory(uploadPath);
-            }
-
-            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-            var filePath = Path.Combine(uploadPath, fileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-
-            return fileName;
         }
 
         private async Task DeleteImageFile(string fileName)
@@ -396,6 +282,44 @@ namespace Model_CoreFirst_Home.Controllers
                     }
                 }
             }
+        }
+
+        private async Task<string> SaveBookImageFile(IFormFile file)
+        {
+            var uploadPath = Path.Combine(_hostEnvironment.WebRootPath, "BookPhotos");
+
+            if (!Directory.Exists(uploadPath))
+            {
+                Directory.CreateDirectory(uploadPath);
+            }
+
+            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+            var filePath = Path.Combine(uploadPath, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return fileName;
+        }
+
+        private bool ValidateBookImageFile(IFormFile file)
+        {
+            if (file.Length > MaxFileSize)
+            {
+                ModelState.AddModelError("ImageFile", "File size cannot exceed 5MB");
+                return false;
+            }
+
+            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (!AllowedExtensions.Contains(extension))
+            {
+                ModelState.AddModelError("ImageFile", "Only .jpg, .jpeg and .png files are allowed");
+                return false;
+            }
+
+            return true;
         }
     }
 }

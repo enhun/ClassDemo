@@ -58,6 +58,10 @@
                 <a asp-action="Edit"
                    asp-route-id="@Model?.BookID"
                    class="btn btn-primary">編輯貼文</a>
+                <!-- 修改：添加刪除貼文按鈕 -->
+                <a asp-action="Delete"
+                   asp-route-id="@Model?.BookID"
+                   class="btn btn-danger">刪除貼文</a>
                 <a asp-action="Index"
                    class="btn btn-secondary">返回列表</a>
             </div>
@@ -72,6 +76,7 @@
         <div class="card-body">
             <!-- 新增留言表單 -->
             <form asp-controller="PostBooks" asp-action="AddReply" method="post" class="mb-4">
+                @Html.AntiForgeryToken() <!-- 修改：添加 AntiForgeryToken -->
                 <input type="hidden" name="BookID" value="@Model.BookID" />
                 <div class="mb-3">
                     <label class="form-label">留言者</label>
@@ -98,35 +103,37 @@
             {
                 foreach (var reply in Model.ReBooks.OrderByDescending(r => r.TimeStamp))
                 {
-                    <div class="card mb-3 border-left-primary">
+                    <!-- 修改：重構留言卡片結構 -->
+                    <div class="card mb-3 border-left-primary shadow-sm">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h6 class="mb-0">
-                                    <i class="fas fa-user"></i> @reply.Author
-                                </h6>
-                                <small class="text-muted">
-                                    <i class="fas fa-clock"></i>
-                                    @reply.TimeStamp.ToString("yyyy/MM/dd HH:mm:ss")
-                                </small>
+                                <div>
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-user"></i> @reply.Author
+                                    </h6>
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock"></i>
+                                        @reply.TimeStamp.ToString("yyyy/MM/dd HH:mm:ss")
+                                    </small>
+                                </div>
 
-                                <!-- 添加刪除按鈕 -->
-                                <form asp-action="DeleteReply" method="post" style="display: inline;">
+                                <!-- 修改：改進刪除按鈕樣式和確認對話框 -->
+                                <form asp-action="DeleteReply" method="post" class="delete-reply-form">
+                                    @Html.AntiForgeryToken()
                                     <input type="hidden" name="replyId" value="@reply.ReBookID" />
                                     <input type="hidden" name="bookId" value="@Model.BookID" />
-                                    <button type="submit" class="btn btn-danger btn-sm"
+                                    <button type="submit" class="btn btn-outline-danger btn-sm"
                                             onclick="return confirm('確定要刪除這則留言嗎？');">
-                                        <i class="fas fa-trash"></i>
+                                        <i class="fas fa-trash-alt"></i>
                                     </button>
                                 </form>
                             </div>
+                            <!-- 修改：更好的留言內容顯示 -->
+                            <div class="mt-2 preserve-whitespace">
+                                @reply.Description
+                            </div>
                         </div>
-                        <p class="card-text mb-0">@reply.Description</p>
-
-
                     </div>
-                            <p class="card-text mb-0">@reply.Description</p>
-                      
-                  
                 }
             }
             else
@@ -139,8 +146,78 @@
         </div>
     </div>
 </div>
+
+<!-- 修改：更新和添加新的樣式 -->
 <style>
     .border-left-primary {
         border-left: 4px solid #007bff;
     }
+
+    .preserve-whitespace {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
+
+    .shadow-sm {
+        box-shadow: 0 .125rem .25rem rgba(0,0,0,.075) !important;
+    }
+
+    .delete-reply-form {
+        margin: 0;
+        padding: 0;
+    }
 </style>
+
+<!-- 修改：添加 JavaScript 區段 -->
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // 處理刪除留言
+            $('.delete-reply-btn').click(function (e) {
+                e.preventDefault();
+                const form = $(this).closest('form');
+                const replyId = form.data('reply-id');
+
+                Swal.fire({
+                    title: '確定要刪除這則留言嗎？',
+                    text: "刪除後將無法復原！",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: '是的，刪除',
+                    cancelButtonText: '取消'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+
+            // 如果有 TempData 訊息，顯示提示
+        @if (TempData["Success"] != null)
+        {
+            <text>
+                    Swal.fire({
+                        title: '成功！',
+                        text: '@TempData["Success"]',
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+            </text>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <text>
+                    Swal.fire({
+                        title: '錯誤！',
+                        text: '@TempData["Error"]',
+                        icon: 'error'
+                    });
+            </text>
+        }
+        });
+    </script>
+}
