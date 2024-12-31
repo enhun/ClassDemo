@@ -42,6 +42,7 @@ namespace Model_CoreFirst_Home.Controllers
                 page = Math.Max(1, Math.Min(page, totalPages));
 
                 var books = await _context.Book
+                      .Include(b => b.ReBooks)  // 加載關聯的留言
                     .OrderByDescending(b => b.TimeStamp)
                     .Skip((page - 1) * PageSize)
                     .Take(PageSize)

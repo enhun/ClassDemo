@@ -68,6 +68,7 @@
         </div>
     </div>
 
+<<<<<<< Updated upstream
     <!-- 添加留言區塊 -->
     <div class="card mt-4">
         <div class="card-header bg-light">
@@ -144,6 +145,16 @@
                 </div>
             }
         </div>
+=======
+    <!-- 使用 ViewComponent 顯示留言區 -->
+    @await Component.InvokeAsync("VCReBooks", new { bookId = Model.BookID })
+
+    <!-- 新增：回覆按鈕 -->
+    <div class="text-end mt-3">
+        <button id="addReplyBtn" class="btn btn-primary">
+            <i class="fas fa-reply"></i> 發表回覆
+        </button>
+>>>>>>> Stashed changes
     </div>
 </div>
 
@@ -168,6 +179,7 @@
     }
 </style>
 
+<<<<<<< Updated upstream
 <!-- 修改：添加 JavaScript 區段 -->
 @section Scripts {
     <script>
@@ -190,11 +202,74 @@
                 }).then((result) => {
                     if (result.isConfirmed) {
                         form.submit();
+=======
+<!-- 修改：更新 Scripts 段落 -->
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // 新增：處理回覆按鈕點擊
+            $('#addReplyBtn').click(function () {
+                const bookId = '@Model.BookID';
+                loadReplyForm(bookId);
+            });
+
+            // 新增：載入回覆表單
+            function loadReplyForm(bookId) {
+                $.get(`/RePostBooks/Create?bookId=${bookId}`, function (data) {
+                    $('#replyModalContent').html(data);
+                    $('#replyModal').modal('show');
+                });
+            }
+
+            // 新增：處理回覆提交
+            $(document).on('click', '#submitReply', function () {
+                const form = $('#createReplyForm');
+                const data = {
+                    BookID: form.find('[name="BookID"]').val(),
+                    Author: form.find('[name="Author"]').val(),
+                    Description: form.find('[name="Description"]').val()
+                };
+
+                $.ajax({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(data),
+                    success: function (response) {
+                        if (response.success) {
+                            // 重新載入留言區
+                            location.reload();
+
+                            Swal.fire({
+                                title: '成功！',
+                                text: '回覆已發布',
+                                icon: 'success',
+                                timer: 1500
+                            });
+                        } else {
+                            Swal.fire({
+                                title: '錯誤！',
+                                text: response.errors.join('\n'),
+                                icon: 'error'
+                            });
+                        }
+                    },
+                    error: function () {
+                        Swal.fire({
+                            title: '錯誤！',
+                            text: '發生錯誤，請稍後再試',
+                            icon: 'error'
+                        });
+>>>>>>> Stashed changes
                     }
                 });
             });
 
+<<<<<<< Updated upstream
             // 如果有 TempData 訊息，顯示提示
+=======
+            // 原有的 TempData 處理
+>>>>>>> Stashed changes
         @if (TempData["Success"] != null)
         {
             <text>
@@ -302,6 +377,11 @@
 
     </script>
 }
+<<<<<<< Updated upstream
+=======
+
+<!-- 新增：Modal 結構 -->
+>>>>>>> Stashed changes
 <div class="modal fade" id="replyModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content" id="replyModalContent">
