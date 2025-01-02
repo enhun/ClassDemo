@@ -13,6 +13,9 @@ namespace Model_CoreFirst_Home.Controllers
             _context = context;
         }
 
+        
+
+
         // GET: RePostBooks
         public async Task<IActionResult> Index()
         {
@@ -123,21 +126,27 @@ namespace Model_CoreFirst_Home.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(string id)
         {
-            var reBook = await _context.ReBook.FindAsync(id);
-            if (reBook == null)
-            {
-                return Json(new { success = false, message = "找不到該回覆" });
-            }
-
             try
             {
-                _context.ReBook.Remove(reBook);
+                if (string.IsNullOrEmpty(id))
+                {
+                    return Json(new { success = false, message = "無效的ID" });
+                }
+
+                var reply = await _context.ReBook.FindAsync(id);
+                if (reply == null)
+                {
+                    return Json(new { success = false, message = "找不到留言" });
+                }
+
+                _context.ReBook.Remove(reply);
                 await _context.SaveChangesAsync();
-                return Json(new { success = true, message = "回覆已成功刪除" });
+
+                return Json(new { success = true });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return Json(new { success = false, message = "刪除回覆時發生錯誤" });
+                return Json(new { success = false, message = ex.Message });
             }
         }
 

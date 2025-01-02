@@ -1,5 +1,9 @@
 ﻿@using Model_CoreFirst_Home.Models
 @model IEnumerable<Model_CoreFirst_Home.Models.ReBook>
+
+<!-- 在最上方增加 jQuery 引用 -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 <div class="card mb-4">
     <div class="card-header bg-light">
         <!-- 移除多餘的大括號 -->
@@ -24,6 +28,7 @@
                             <!-- 添加刪除按鈕和表單 -->
                             <form asp-controller="RePostBooks" asp-action="Delete"
                                   asp-route-id="@reply.ReBookID"
+                                  method="post"
                                   class="delete-reply-form d-inline">
                                 @Html.AntiForgeryToken()
                                 <button type="button" class="btn btn-danger btn-sm delete-reply"
@@ -48,47 +53,52 @@
 
 <!-- 添加刪除功能的 JavaScript -->
 <script>
-    $(document).ready(function() {
-        $('.delete-reply').click(function() {
-            const replyId = $(this).data('id');
-            const button = $(this);
+           document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.delete-reply').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const replyId = this.dataset.id;
+                const form = this.closest('form');
+                const token = form.querySelector('input[name="__RequestVerificationToken"]').value;
 
-            Swal.fire({
-                title: '確定要刪除此回覆嗎？',
-                text: "此操作無法復原！",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: '是的，刪除！',
-                cancelButtonText: '取消'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    const form = button.closest('form');
-                    $.ajax({
-                        url: form.attr('action'),
-                        type: 'POST',
-                        data: new FormData(form[0]),
-                        processData: false,
-                        contentType: false,
-                        success: function(response) {
-                            if (response.success) {
-                                button.closest('.border-bottom').remove();
-                                if ($('.border-bottom').length === 0) {
-                                    location.reload();
-                                }
-                                Swal.fire('已刪除！', '回覆已成功刪除。', 'success');
-                            } else {
-                                Swal.fire('錯誤！', response.message || '刪除失敗', 'error');
-                            }
+                if (confirm('確定要刪除此回覆嗎？')) {
+                    fetch('/RePostBooks/Delete/' + replyId, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': token
                         },
-                        error: function() {
-                            Swal.fire('錯誤！', '刪除回覆時發生錯誤。', 'error');
+                        body: JSON.stringify({ id: replyId })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById('reply-' + replyId).remove();
+                        } else {
+                            alert(data.message || '刪除失敗');
                         }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('刪除失敗');
                     });
                 }
             });
         });
+    });
+</script>
+
+<script>
+    window.onerror = function(msg, url, line) {
+        console.log('Error: ' + msg);
+        console.log('URL: ' + url);
+        console.log('Line: ' + line);
+        return false;
+    };
+
+    $(document).ready(function() {
+        console.log('jQuery version:', $.fn.jquery);
+        console.log('Delete buttons found:', $('.delete-reply').length);
     });
 </script>
 
