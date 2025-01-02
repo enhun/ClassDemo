@@ -11,11 +11,11 @@ SQL Server (LocalDB 或完整版本)
 
 Clone 專案到本地:
 
-bashCopygit clone [您的 Repository URL]
+git clone [您的 Repository URL]
 
 確保 appsettings.json 中的資料庫連接字串正確:
 
-jsonCopy{
+{
   "ConnectionStrings": {
     "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=YourDatabaseName;Trusted_Connection=True;MultipleActiveResultSets=true"
   }
@@ -23,14 +23,13 @@ jsonCopy{
 
 開啟命令提示字元，切換到專案資料夾，執行以下命令更新資料庫:
 
-bashCopydotnet ef database update
+dotnet ef database update
 
 建立必要的資料夾:
-
-bashCopymkdir wwwroot/bookphotos
+mkdir wwwroot/bookphotos
 初始化資料
 SeedData.cs 包含初始資料，確保在 Program.cs 中有以下程式碼:
-csharpCopyusing (var scope = app.Services.CreateScope())
+using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     try
