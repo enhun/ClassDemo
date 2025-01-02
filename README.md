@@ -15,20 +15,28 @@ git clone [您的 Repository URL]
 
 確保 appsettings.json 中的資料庫連接字串正確:
 
+
 {
   "ConnectionStrings": {
     "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=YourDatabaseName;Trusted_Connection=True;MultipleActiveResultSets=true"
   }
 }
 
+
 開啟命令提示字元，切換到專案資料夾，執行以下命令更新資料庫:
+
 
 dotnet ef database update
 
+
 建立必要的資料夾:
+
 mkdir wwwroot/bookphotos
+
+
 初始化資料
 SeedData.cs 包含初始資料，確保在 Program.cs 中有以下程式碼:
+
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -43,6 +51,7 @@ using (var scope = app.Services.CreateScope())
         logger.LogError(ex, "An error occurred while seeding the database.");
     }
 }
+
 圖片處理
 
 確保 wwwroot/bookphotos 資料夾具有寫入權限
@@ -113,18 +122,28 @@ IIS 部署注意事項：
 
 
 #其他注意事項
+
+
 對於 SeedData.cs，建議修改初始化方法，確保資料只會被植入一次：
+
+
+
 public static void Initialize(GuestBookContext context)
 {
+   
     if (context.Books.Any()) // 檢查是否已有資料
     {
+       
         return; // 如果已有資料，直接返回
+    
     }
     
     // 添加初始資料...
 }
 
 建議在 Program.cs 中添加圖片目錄的自動創建：
+
+
 
 if (!Directory.Exists(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "bookphotos")))
 {
