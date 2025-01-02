@@ -58,7 +58,6 @@
                 <a asp-action="Edit"
                    asp-route-id="@Model?.BookID"
                    class="btn btn-primary">編輯貼文</a>
-                <!-- 修改：添加刪除貼文按鈕 -->
                 <a asp-action="Delete"
                    asp-route-id="@Model?.BookID"
                    class="btn btn-danger">刪除貼文</a>
@@ -68,84 +67,6 @@
         </div>
     </div>
 
-<<<<<<< Updated upstream
-    <!-- 添加留言區塊 -->
-    <div class="card mt-4">
-        <div class="card-header bg-light">
-            <h4 class="mb-0">留言區</h4>
-        </div>
-        <div class="card-body">
-            <!-- 新增留言表單 -->
-            <form asp-controller="PostBooks" asp-action="AddReply" method="post" class="mb-4">
-                @Html.AntiForgeryToken() <!-- 修改：添加 AntiForgeryToken -->
-                <input type="hidden" name="BookID" value="@Model.BookID" />
-                <div class="mb-3">
-                    <label class="form-label">留言者</label>
-                    <input type="text" name="Author" class="form-control" required maxlength="20"
-                           placeholder="請輸入您的名字" />
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">留言內容</label>
-                    <textarea name="Description" class="form-control" rows="3" required
-                              placeholder="寫下您的想法..."></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-paper-plane"></i> 發表留言
-                </button>
-            </form>
-
-            <!-- 顯示留言列表 -->
-            <h5 class="mt-4 mb-3">
-                <i class="fas fa-comments"></i>
-                所有留言 (@(Model.ReBooks?.Count ?? 0))
-            </h5>
-
-            @if (Model.ReBooks != null && Model.ReBooks.Any())
-            {
-                foreach (var reply in Model.ReBooks.OrderByDescending(r => r.TimeStamp))
-                {
-                    <!-- 修改：重構留言卡片結構 -->
-                    <div class="card mb-3 border-left-primary shadow-sm">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <div>
-                                    <h6 class="mb-0">
-                                        <i class="fas fa-user"></i> @reply.Author
-                                    </h6>
-                                    <small class="text-muted">
-                                        <i class="fas fa-clock"></i>
-                                        @reply.TimeStamp.ToString("yyyy/MM/dd HH:mm:ss")
-                                    </small>
-                                </div>
-
-                                <!-- 修改：改進刪除按鈕樣式和確認對話框 -->
-                                <form asp-action="DeleteReply" method="post" class="delete-reply-form">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="replyId" value="@reply.ReBookID" />
-                                    <input type="hidden" name="bookId" value="@Model.BookID" />
-                                    <button type="submit" class="btn btn-outline-danger btn-sm"
-                                            onclick="return confirm('確定要刪除這則留言嗎？');">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
-                                </form>
-                            </div>
-                            <!-- 修改：更好的留言內容顯示 -->
-                            <div class="mt-2 preserve-whitespace">
-                                @reply.Description
-                            </div>
-                        </div>
-                    </div>
-                }
-            }
-            else
-            {
-                <div class="alert alert-info" role="alert">
-                    <i class="fas fa-info-circle"></i>
-                    目前還沒有留言，成為第一個留言的人吧！
-                </div>
-            }
-        </div>
-=======
     <!-- 使用 ViewComponent 顯示留言區 -->
     @await Component.InvokeAsync("VCReBooks", new { bookId = Model.BookID })
 
@@ -154,11 +75,9 @@
         <button id="addReplyBtn" class="btn btn-primary">
             <i class="fas fa-reply"></i> 發表回覆
         </button>
->>>>>>> Stashed changes
     </div>
 </div>
 
-<!-- 修改：更新和添加新的樣式 -->
 <style>
     .border-left-primary {
         border-left: 4px solid #007bff;
@@ -179,41 +98,16 @@
     }
 </style>
 
-<<<<<<< Updated upstream
-<!-- 修改：添加 JavaScript 區段 -->
 @section Scripts {
     <script>
         $(document).ready(function () {
-            // 處理刪除留言
-            $('.delete-reply-btn').click(function (e) {
-                e.preventDefault();
-                const form = $(this).closest('form');
-                const replyId = form.data('reply-id');
-
-                Swal.fire({
-                    title: '確定要刪除這則留言嗎？',
-                    text: "刪除後將無法復原！",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: '是的，刪除',
-                    cancelButtonText: '取消'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        form.submit();
-=======
-<!-- 修改：更新 Scripts 段落 -->
-@section Scripts {
-    <script>
-        $(document).ready(function () {
-            // 新增：處理回覆按鈕點擊
+            // 處理回覆按鈕點擊
             $('#addReplyBtn').click(function () {
                 const bookId = '@Model.BookID';
                 loadReplyForm(bookId);
             });
 
-            // 新增：載入回覆表單
+            // 載入回覆表單
             function loadReplyForm(bookId) {
                 $.get(`/RePostBooks/Create?bookId=${bookId}`, function (data) {
                     $('#replyModalContent').html(data);
@@ -221,7 +115,7 @@
                 });
             }
 
-            // 新增：處理回覆提交
+            // 處理回覆提交
             $(document).on('click', '#submitReply', function () {
                 const form = $('#createReplyForm');
                 const data = {
@@ -237,9 +131,7 @@
                     data: JSON.stringify(data),
                     success: function (response) {
                         if (response.success) {
-                            // 重新載入留言區
                             location.reload();
-
                             Swal.fire({
                                 title: '成功！',
                                 text: '回覆已發布',
@@ -260,128 +152,39 @@
                             text: '發生錯誤，請稍後再試',
                             icon: 'error'
                         });
->>>>>>> Stashed changes
                     }
                 });
             });
 
-<<<<<<< Updated upstream
-            // 如果有 TempData 訊息，顯示提示
-=======
-            // 原有的 TempData 處理
->>>>>>> Stashed changes
+            // TempData 處理
         @if (TempData["Success"] != null)
         {
             <text>
-                    Swal.fire({
-                        title: '成功！',
-                        text: '@TempData["Success"]',
-                        icon: 'success',
-                        timer: 2000,
-                        showConfirmButton: false
-                    });
+                        Swal.fire({
+                            title: '成功！',
+                            text: '@TempData["Success"]',
+                            icon: 'success',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
             </text>
         }
 
         @if (TempData["Error"] != null)
         {
             <text>
-                    Swal.fire({
-                        title: '錯誤！',
-                        text: '@TempData["Error"]',
-                        icon: 'error'
-                    });
+                        Swal.fire({
+                            title: '錯誤！',
+                            text: '@TempData["Error"]',
+                            icon: 'error'
+                        });
             </text>
         }
         });
-
-        $(document).ready(function () {
-            $('#addReplyBtn').click(function () {
-                const bookId = '@Model.BookID';
-                loadReplyForm(bookId);
-            });
-
-            function loadReplyForm(bookId) {
-                $.get(`/RePostBooks/Create?bookId=${bookId}`, function (data) {
-                    $('#replyModalContent').html(data);
-                    $('#replyModal').modal('show');
-                });
-            }
-
-            $(document).on('click', '#submitReply', function () {
-                const form = $('#createReplyForm');
-                const data = {
-                    BookID: form.find('[name="BookID"]').val(),
-                    Author: form.find('[name="Author"]').val(),
-                    Description: form.find('[name="Description"]').val()
-                };
-
-                $.ajax({
-                    url: form.attr('action'),
-                    type: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify(data),
-                    success: function (response) {
-                        if (response.success) {
-                            addReplyToList(response.data);
-                            $('#replyModal').modal('hide');
-
-                            Swal.fire({
-                                title: '成功！',
-                                text: '回覆已發布',
-                                icon: 'success',
-                                timer: 1500
-                            });
-                        } else {
-                            Swal.fire({
-                                title: '錯誤！',
-                                text: response.errors.join('\n'),
-                                icon: 'error'
-                            });
-                        }
-                    },
-                    error: function () {
-                        Swal.fire({
-                            title: '錯誤！',
-                            text: '發生錯誤，請稍後再試',
-                            icon: 'error'
-                        });
-                    }
-                });
-            });
-
-            function addReplyToList(reply) {
-                const replyHtml = `
-                    <div class="card mb-3 border-left-primary shadow-sm">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <div>
-                                    <h6 class="mb-0">
-                                        <i class="fas fa-user"></i> ${reply.author}
-                                    </h6>
-                                    <small class="text-muted">
-                                        <i class="fas fa-clock"></i>
-                                        ${reply.timestamp}
-                                    </small>
-                                </div>
-                            </div>
-                            <div class="mt-2 preserve-whitespace">
-                                ${reply.description}
-                            </div>
-                        </div>
-                    </div>
-                `;
-                $('#replyList').prepend(replyHtml);
-            }
-        });
-
     </script>
 }
-<<<<<<< Updated upstream
-=======
 
-<!-- 新增：Modal 結構 -->
->>>>>>> Stashed changes
+<!-- Modal 結構 -->
 <div class="modal fade" id="replyModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content" id="replyModalContent">
