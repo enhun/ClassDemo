@@ -109,3 +109,24 @@ IIS 部署注意事項：
 設定適當的應用程式池
 確保 IIS 用戶具有足夠權限
 設定正確的檔案權限
+
+
+
+#其他注意事項
+對於 SeedData.cs，建議修改初始化方法，確保資料只會被植入一次：
+public static void Initialize(GuestBookContext context)
+{
+    if (context.Books.Any()) // 檢查是否已有資料
+    {
+        return; // 如果已有資料，直接返回
+    }
+    
+    // 添加初始資料...
+}
+
+建議在 Program.cs 中添加圖片目錄的自動創建：
+
+if (!Directory.Exists(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "bookphotos")))
+{
+    Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "bookphotos"));
+}
