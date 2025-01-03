@@ -21,6 +21,24 @@ namespace Model_CoreFirst_Home.Controllers
         private const long MaxFileSize = 5 * 1024 * 1024; // 5MB
         private readonly string[] AllowedExtensions = { ".jpg", ".jpeg", ".png" };
 
+        public class ErrorController : Controller
+        {
+            [Route("Error/{statusCode}")]
+            public IActionResult HttpStatusCodeHandler(int statusCode)
+            {
+                switch (statusCode)
+                {
+                    case 404:
+                        ViewBag.ErrorMessage = "找不到頁面";
+                        break;
+                    case 500:
+                        ViewBag.ErrorMessage = "伺服器內部錯誤";
+                        break;
+                }
+                return View("Error");
+            }
+        }
+
         public PostBooksController(
             GuestBookContext context,
             IWebHostEnvironment hostEnvironment,
@@ -307,6 +325,12 @@ namespace Model_CoreFirst_Home.Controllers
 
         private bool ValidateBookImageFile(IFormFile file)
         {
+            if (!file.ContentType.StartsWith("image/"))
+            {
+                ModelState.AddModelError("ImageFile", "只允許上傳圖片檔案");
+                return false;
+            }
+
             if (file.Length > MaxFileSize)
             {
                 ModelState.AddModelError("ImageFile", "File size cannot exceed 5MB");

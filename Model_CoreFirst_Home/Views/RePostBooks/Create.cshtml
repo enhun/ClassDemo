@@ -4,25 +4,124 @@
     <h5 class="modal-title">新增回覆</h5>
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
+
 <div class="modal-body">
-    <form id="createReplyForm" asp-action="Create" asp-controller="RePostBooks">
-        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-        <input type="hidden" asp-for="BookID" />
+    <form id="createReplyForm">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="ReBookID" value="@Guid.NewGuid().ToString()" />
+        <input type="hidden" name="BookID" value="@Model.BookID" />
 
         <div class="mb-3">
             <label asp-for="Author" class="form-label"></label>
-            <input asp-for="Author" class="form-control" />
+            <input asp-for="Author" name="Author" class="form-control" required maxlength="20" />
             <span asp-validation-for="Author" class="text-danger"></span>
         </div>
 
         <div class="mb-3">
             <label asp-for="Description" class="form-label"></label>
-            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+            <textarea asp-for="Description" name="Description" class="form-control" rows="3" required></textarea>
             <span asp-validation-for="Description" class="text-danger"></span>
         </div>
     </form>
 </div>
+
 <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-    <button type="button" class="btn btn-primary" id="submitReply">發表回覆</button>
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+        <i class="fas fa-times"></i> 取消
+    </button>
+    <button type="button" class="btn btn-primary" id="submitReply">
+        <i class="fas fa-paper-plane"></i> 發表回覆
+    </button>
 </div>
+
+<script>
+    $(document).ready(function () {
+        $("#submitReply").click(function (e) {
+            e.preventDefault();
+
+            var form = $("#createReplyForm");
+            if (!form[0].checkValidity()) {
+                form[0].reportValidity();
+                return;
+            }
+
+            var formData = new FormData(form[0]);
+
+            $.ajax({
+                url: '/RePostBooks/Create',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                beforeSend: function () {
+                    Swal.fire({
+                        title: '處理中...',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                },
+                success: function (response) {
+                    if (response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: '成功',
+                            text: '回覆已成功發表',
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(function() {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: '錯誤',
+                            text: response.message || '發生錯誤，請稍後再試'
+                        });
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: '錯誤',
+                        text: '發生錯誤，請稍後再試'
+                    });
+                }
+            });
+        });
+    });
+
+    // Modal 關閉時重置表單
+    $('.modal').on('hidden.bs.modal', function () {
+        $("#createReplyForm")[0].reset();
+        $(".text-danger").text('');
+    });
+</script>
+
+<style>
+    .modal-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .modal-footer {
+        background-color: #f8f9fa;
+        border-top: 1px solid #dee2e6;
+    }
+
+    .btn {
+        transition: all 0.3s;
+    }
+
+        .btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+    .text-danger {
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+</style>

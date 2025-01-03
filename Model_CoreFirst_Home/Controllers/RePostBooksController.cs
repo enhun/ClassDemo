@@ -1,62 +1,113 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Model_CoreFirst_Home.Models;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Model_CoreFirst_Home.Controllers
 {
     public class RePostBooksController : Controller
     {
         private readonly GuestBookContext _context;
+        private readonly ILogger<RePostBooksController> _logger;
 
-        public RePostBooksController(GuestBookContext context)
+        public RePostBooksController(GuestBookContext context, ILogger<RePostBooksController> logger)
         {
             _context = context;
+            _logger = logger;
         }
-
-        
-
 
         // GET: RePostBooks
         public async Task<IActionResult> Index()
         {
-            return View(await _context.ReBook.ToListAsync());
+            try
+            {
+                return View(await _context.ReBook.ToListAsync());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while fetching ReBooks");
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
         }
 
         // GET: RePostBooks/Details/5
         public async Task<IActionResult> Details(string id)
         {
-            if (id == null)
+            if (string.IsNullOrEmpty(id))
             {
-                return NotFound();
+                return BadRequest("Invalid ID");
             }
 
-            var reBook = await _context.ReBook
-                .FirstOrDefaultAsync(m => m.ReBookID == id);
-            if (reBook == null)
+            try
             {
-                return NotFound();
-            }
+                var reBook = await _context.ReBook
+                    .FirstOrDefaultAsync(m => m.ReBookID == id);
 
-            return View(reBook);
+                if (reBook == null)
+                {
+                    return NotFound($"ReBook with ID {id} not found");
+                }
+
+                return View(reBook);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error occurred while fetching ReBook with ID {id}");
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
         }
 
         // GET: RePostBooks/Create
         public IActionResult Create(string bookId)
         {
+            if (string.IsNullOrEmpty(bookId))
+            {
+                return BadRequest("Invalid BookID");
+            }
             return PartialView(new ReBook { BookID = bookId });
         }
 
         // POST: RePostBooks/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([FromBody] ReBook reBook)
+        public async Task<IActionResult> Create([FromForm] ReBook reBook)
         {
-            if (ModelState.IsValid)
+            try
             {
-                reBook.ReBookID = Guid.NewGuid().ToString();
+                if (string.IsNullOrEmpty(reBook.Author))
+                {
+                    return Json(new { success = false, message = "請輸入回覆者名稱" });
+                }
+
+                if (string.IsNullOrEmpty(reBook.Description))
+                {
+                    return Json(new { success = false, message = "請輸入回覆內容" });
+                }
+
+                if (string.IsNullOrEmpty(reBook.BookID))
+                {
+                    return Json(new { success = false, message = "找不到對應的貼文" });
+                }
+
+                var book = await _context.Book.FindAsync(reBook.BookID);
+                if (book == null)
+                {
+                    return Json(new { success = false, message = "找不到對應的貼文" });
+                }
+
+                // 設定必要欄位
+                if (string.IsNullOrEmpty(reBook.ReBookID))
+                {
+                    reBook.ReBookID = Guid.NewGuid().ToString();
+                }
                 reBook.TimeStamp = DateTime.Now;
+
                 _context.Add(reBook);
                 await _context.SaveChangesAsync();
+
                 return Json(new
                 {
                     success = true,
@@ -69,23 +120,35 @@ namespace Model_CoreFirst_Home.Controllers
                     }
                 });
             }
-            return Json(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error occurred while creating ReBook: {@ReBook}", reBook);
+                return Json(new { success = false, message = "發生錯誤，請稍後再試" });
+            }
         }
 
         // GET: RePostBooks/Edit/5
         public async Task<IActionResult> Edit(string id)
         {
-            if (id == null)
+            if (string.IsNullOrEmpty(id))
             {
-                return NotFound();
+                return BadRequest("Invalid ID");
             }
 
-            var reBook = await _context.ReBook.FindAsync(id);
-            if (reBook == null)
+            try
             {
-                return NotFound();
+                var reBook = await _context.ReBook.FindAsync(id);
+                if (reBook == null)
+                {
+                    return NotFound($"ReBook with ID {id} not found");
+                }
+                return View(reBook);
             }
-            return View(reBook);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error occurred while fetching ReBook with ID {id} for edit");
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
         }
 
         // POST: RePostBooks/Edit/5
@@ -95,28 +158,32 @@ namespace Model_CoreFirst_Home.Controllers
         {
             if (id != reBook.ReBookID)
             {
-                return NotFound();
+                return BadRequest("ID mismatch");
             }
 
             if (ModelState.IsValid)
             {
                 try
                 {
+                    reBook.TimeStamp = DateTime.Now;
                     _context.Update(reBook);
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (DbUpdateConcurrencyException ex)
                 {
                     if (!ReBookExists(reBook.ReBookID))
                     {
-                        return NotFound();
+                        return NotFound($"ReBook with ID {id} not found");
                     }
-                    else
-                    {
-                        throw;
-                    }
+                    _logger.LogError(ex, $"Concurrency error occurred while updating ReBook with ID {id}");
+                    throw;
                 }
-                return RedirectToAction(nameof(Index));
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, $"Error occurred while updating ReBook with ID {id}");
+                    return StatusCode(500, "An error occurred while processing your request.");
+                }
             }
             return View(reBook);
         }
@@ -142,11 +209,12 @@ namespace Model_CoreFirst_Home.Controllers
                 _context.ReBook.Remove(reply);
                 await _context.SaveChangesAsync();
 
-                return Json(new { success = true });
+                return Json(new { success = true, message = "留言已成功刪除" });
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                _logger.LogError(ex, $"Error occurred while deleting ReBook with ID {id}");
+                return Json(new { success = false, message = "刪除留言時發生錯誤，請稍後再試" });
             }
         }
 

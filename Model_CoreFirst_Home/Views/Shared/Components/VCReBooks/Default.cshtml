@@ -53,7 +53,7 @@
 
 <!-- 添加刪除功能的 JavaScript -->
 <script>
-           document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.delete-reply').forEach(button => {
             button.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -62,13 +62,13 @@
                 const token = form.querySelector('input[name="__RequestVerificationToken"]').value;
 
                 if (confirm('確定要刪除此回覆嗎？')) {
+                    const formData = new FormData();
+                    formData.append('id', replyId);
+                    formData.append('__RequestVerificationToken', token);
+
                     fetch('/RePostBooks/Delete/' + replyId, {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'RequestVerificationToken': token
-                        },
-                        body: JSON.stringify({ id: replyId })
+                        body: formData
                     })
                     .then(response => response.json())
                     .then(data => {
