@@ -29,8 +29,6 @@ namespace MyModel_CodeFirst.Controllers
         }
 
 
-
-        // POST: BooksManage/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(string id)
@@ -52,10 +50,25 @@ namespace MyModel_CodeFirst.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        //4.4.4 在BooksManageController加人中的DeleteReBook Action
+        [HttpPost]
+        public async Task<IActionResult> DeleteReBook(string id)
+        {
+            var reBook = await _context.ReBook.FindAsync(id);
+            if (reBook != null)
+            {
+                _context.ReBook.Remove(reBook);
+
+            }
+
+            await _context.SaveChangesAsync();
+            return Json(reBook);
+        }
+
+
         private bool BookExists(string id)
         {
             return _context.Book.Any(e => e.BookID == id);
         }
     }
 }
-

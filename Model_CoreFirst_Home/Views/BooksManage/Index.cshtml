@@ -46,3 +46,22 @@
     }
 </div>
 
+@section Scripts {
+    <script>
+        function delReBook(reBookId) {
+            if (confirm("確定要刪除嗎？")) {
+
+                $.ajax({
+                  type:"post",
+                  url:"/BooksManage/DeleteReBook",
+                  data:{id:reBookId},
+                  success:function(){
+
+                  }
+                });
+
+
+            }
+        }
+    </script>
+}
