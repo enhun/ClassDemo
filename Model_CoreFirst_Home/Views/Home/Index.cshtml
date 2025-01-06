@@ -1,46 +1,180 @@
 ﻿@model IEnumerable<Model_CoreFirst_Home.Models.Book>
-
 @{
-    //3.2.3  設定Home/Index View的Layout為_UserLayout
     Layout = "_UserLayout";
-
-    ViewData["Title"] = "Home Page";
-    int c = 0;
+    ViewData["Title"] = "精選美食展示";
 }
 
-<div id="HomePhoto" class="carousel slide my-3" data-bs-ride="carousel">
-    <div class="carousel-indicators">
-        @for (int i = 0; i < Model.Count(); i++)
-        {
-            <button type="button" data-bs-target="#HomePhoto" class="@(i == 0 ? "active":"")" data-bs-slide-to="@i" aria-label="Slide @i"></button>
-        }
-
-
-    </div>
-    <div class="carousel-inner">
-        @foreach (var item in Model)
-        {
-            <div class="carousel-item @(c == 0 ? "active":"")">
-                <img src="~/BookPhotos/@item.Photo" class="d-block w-100 img-thumbnail" alt="@item.Description">
-                <div class="carousel-caption d-none d-md-block">
-                    <h3 class="fw-bold h3-shadow p-3">@item.Title</h3>
-
-                </div>
+<!-- 頁面主容器 -->
+<div class="page-container">
+    <!-- 輪播區域 -->
+    <div class="showcase-section">
+        <div id="HomePhoto" class="carousel slide custom-carousel" data-bs-ride="carousel" data-bs-interval="5000">
+            <!-- 輪播指示器 -->
+            <div class="carousel-indicators custom-indicators">
+                @for (int i = 0; i < Model.Count(); i++)
+                {
+                    <button type="button"
+                            data-bs-target="#HomePhoto"
+                            class="@(i == 0 ? "active":"")"
+                            data-bs-slide-to="@i"
+                            aria-current="@(i == 0 ? "true" : "false")"
+                            aria-label="Slide @(i + 1)">
+                    </button>
+                }
             </div>
-            c++;
-        }
+
+            <!-- 輪播內容 -->
+            <div class="carousel-inner">
+                @{
+                    int slideIndex = 0;
+                }
+                @foreach (var book in Model)
+                {
+                    <div class="carousel-item @(slideIndex == 0 ? "active":"")">
+                        <div class="image-container">
+                            <img src="~/BookPhotos/@book.Photo"
+                                 class="carousel-image"
+                                 alt="@book.Description">
+                        </div>
+                        <div class="carousel-caption custom-caption">
+                            <h3 class="caption-title">@book.Title</h3>
+                            <p class="caption-description">@book.Description</p>
+                        </div>
+                    </div>
+                    slideIndex++;
+                }
+            </div>
+
+            <!-- 導航按鈕 -->
+            <button class="carousel-control-prev nav-button" type="button"
+                    data-bs-target="#HomePhoto" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next nav-button" type="button"
+                    data-bs-target="#HomePhoto" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
     </div>
-    <button class="carousel-control-prev" type="button" data-bs-target="#HomePhoto" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Previous</span>
-    </button>
-    <button class="carousel-control-next" type="button" data-bs-target="#HomePhoto" data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Next</span>
-    </button>
+
+    <!-- 熱門美食展示 -->
+    <div class="featured-section">
+        <div class="row">
+            @await Component.InvokeAsync("VCBooksTopThree")
+        </div>
+    </div>
 </div>
 
-@* //3.2.8  在Home/Index View中加入VCBooksTopThree ViewComponent *@
-<div class="row">
-    @await Component.InvokeAsync("VCBooksTopThree")
-</div>
+<style>
+    .page-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+        background: linear-gradient(to bottom, #f8f9fa, #ffffff);
+    }
+
+    .showcase-section {
+        margin-bottom: 40px;
+    }
+
+    .custom-carousel {
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        background: #fff;
+    }
+
+    .image-container {
+        height: 600px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .carousel-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .carousel-item:hover .carousel-image {
+        transform: scale(1.05);
+    }
+
+    .custom-indicators {
+        bottom: 30px;
+    }
+
+        .custom-indicators button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin: 0 6px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border: 2px solid rgba(255, 255, 255, 0.9);
+            transition: all 0.3s ease;
+        }
+
+            .custom-indicators button.active {
+                background-color: #fff;
+                transform: scale(1.2);
+            }
+
+    .custom-caption {
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.4));
+        border-radius: 15px;
+        padding: 25px;
+        max-width: 90%;
+        margin: 0 auto;
+        bottom: 50px;
+        left: 50%;
+        transform: translateX(-50%);
+        backdrop-filter: blur(5px);
+    }
+
+    .caption-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        margin-bottom: 15px;
+        color: #fff;
+    }
+
+    .caption-description {
+        font-size: 1.2rem;
+        line-height: 1.6;
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .nav-button {
+        width: 50px;
+        height: 50px;
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 50%;
+        top: 50%;
+        transform: translateY(-50%);
+        transition: all 0.3s ease;
+    }
+
+        .nav-button:hover {
+            background: rgba(0, 0, 0, 0.8);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+    .carousel-control-prev {
+        left: 20px;
+    }
+
+    .carousel-control-next {
+        right: 20px;
+    }
+
+    .featured-section {
+        padding: 40px 0;
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+</style>
