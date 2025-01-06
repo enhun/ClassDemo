@@ -4,25 +4,22 @@ using Model_CoreFirst_Home.Models;
 
 namespace MyModel_CodeFirst.ViewComponents
 {
-    public class VCRebooks : ViewComponent
+    public class VCRebooksViewComponent : ViewComponent
     {
         private readonly GuestBookContext _context;
 
-        // 建構子，注入資料庫內容
-        public VCRebooks(GuestBookContext context)
+        public VCRebooksViewComponent(GuestBookContext context)
         {
             _context = context;
         }
 
-        // 這個方法會被自動調用來取得資料
-        public async Task<IViewComponentResult> InvokeAsync(string bookId)
+        public async Task<IViewComponentResult> InvokeAsync(string bookId, bool isDel = false)
         {
             var reBooks = await _context.ReBook
                 .Where(r => r.BookID == bookId)
                 .OrderByDescending(r => r.TimeStamp)
                 .ToListAsync();
-
-            return View(reBooks);  // 預設會找 Default.cshtml
+            return View(reBooks);
         }
     }
 }
