@@ -4,12 +4,12 @@ using Model_CoreFirst_Home.Models;
 
 namespace MyModel_CodeFirst.ViewComponents
 {
-    public class VCReBooks : ViewComponent
+    public class VCRebooks : ViewComponent
     {
         private readonly GuestBookContext _context;
 
         // 建構子，注入資料庫內容
-        public VCReBooks(GuestBookContext context)
+        public VCRebooks(GuestBookContext context)
         {
             _context = context;
         }

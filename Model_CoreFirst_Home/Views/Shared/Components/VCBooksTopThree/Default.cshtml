@@ -1,0 +1,26 @@
+﻿@model IEnumerable<Model_CoreFirst_Home.Models.Book>
+
+
+
+@* //3.2.7  撰寫VCBooksTopThree的Default View，使其能顯示最新三筆留言 *@
+
+@foreach (var item in Model)
+{
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h3>@item.Title</h3>
+            </div>
+            <div class="card-body" style="height:300px;overflow:hidden">
+               
+                <p>@Html.Raw(item.Description.Replace("\r\n","<br>"))</p>
+            </div>
+           <div class="card-footer">
+                <p class="text-end">@item.Author | @Html.DisplayFor(modelItem => item.TimeStamp)</p>
+           </div>
+        </div>
+    </div>
+}
+<div class="col-12 text-center">
+    <a asp-action="Index" asp-controller="PostBooks">看更多留言...</a>
+</div>

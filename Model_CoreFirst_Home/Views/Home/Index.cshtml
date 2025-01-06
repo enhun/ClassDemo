@@ -1,8 +1,46 @@
-﻿@{
+﻿@model IEnumerable<Model_CoreFirst_Home.Models.Book>
+
+@{
+    //3.2.3  設定Home/Index View的Layout為_UserLayout
+    Layout = "_UserLayout";
+
     ViewData["Title"] = "Home Page";
+    int c = 0;
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div id="HomePhoto" class="carousel slide my-3" data-bs-ride="carousel">
+    <div class="carousel-indicators">
+        @for (int i = 0; i < Model.Count(); i++)
+        {
+            <button type="button" data-bs-target="#HomePhoto" class="@(i == 0 ? "active":"")" data-bs-slide-to="@i" aria-label="Slide @i"></button>
+        }
+
+
+    </div>
+    <div class="carousel-inner">
+        @foreach (var item in Model)
+        {
+            <div class="carousel-item @(c == 0 ? "active":"")">
+                <img src="~/BookPhotos/@item.Photo" class="d-block w-100 img-thumbnail" alt="@item.Description">
+                <div class="carousel-caption d-none d-md-block">
+                    <h3 class="fw-bold h3-shadow p-3">@item.Title</h3>
+
+                </div>
+            </div>
+            c++;
+        }
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#HomePhoto" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#HomePhoto" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+    </button>
+</div>
+
+@* //3.2.8  在Home/Index View中加入VCBooksTopThree ViewComponent *@
+<div class="row">
+    @await Component.InvokeAsync("VCBooksTopThree")
 </div>
