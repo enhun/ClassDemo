@@ -11,7 +11,7 @@
         {
             <div class="text-truncate" style="max-width:800px">@item.Description</div>
             //4.4.5 將VCRebooks/Delete View的刪除鈕製作以Ajax方式刪除以保留頁面不整頁更新
-            <div class="text-end">@Html.DisplayFor(modelItem => @item.Author) | @Html.DisplayFor(modelItem => @item.TimeStamp) | <button class="btn btn-outline-danger btn-sm" onclick="delReBook('@item.ReBookID')">刪除</button></div>
+            <div class="text-end">@Html.DisplayFor(modelItem => @item.Author) | @Html.DisplayFor(modelItem => @item.TimeStamp) | <button class="btn btn-outline-danger btn-sm" onclick="delReBook('@item.ReBookID','@item.BookID')">刪除</button></div>
             <hr />
         }
     </div>

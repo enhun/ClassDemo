@@ -66,6 +66,12 @@ namespace MyModel_CodeFirst.Controllers
         }
 
 
+        //4.4.7 在BooksManageController中加入GetRebookByViewComponent Action
+        public IActionResult GetRebookByViewComponent(string id)
+        {
+            return ViewComponent("VCRebooks", new { bookID = id, isDel = true });
+        }
+
         private bool BookExists(string id)
         {
             return _context.Book.Any(e => e.BookID == id);
