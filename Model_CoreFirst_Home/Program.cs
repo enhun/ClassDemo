@@ -4,6 +4,17 @@ using Model_CoreFirst_Home.Models;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
+
+//µù¥USessionªA°È
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(option=>
+{
+    option.IdleTimeout = TimeSpan.FromMinutes(10);
+    option.Cookie.HttpOnly = true;
+    option.Cookie.IsEssential = true;
+});
+
+
 builder.Services.AddDbContext<GuestBookContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -38,6 +49,11 @@ else
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthorization();
+
+
+//±Ò¥ÎSession
+app.UseSession();
+
 
 app.MapControllerRoute(
     name: "default",

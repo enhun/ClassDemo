@@ -2,44 +2,41 @@
 using Microsoft.EntityFrameworkCore;
 using Model_CoreFirst_Home.Models;
 
-namespace Model_CoreFirst_Home.Controllers
+public class LoginController : Controller
 {
-    public class LoginController : Controller
+    private readonly GuestBookContext _context;
+    public LoginController(GuestBookContext context)
     {
-        private readonly GuestBookContext _context;
+        _context = context;
+    }
 
-        public LoginController(GuestBookContext context)
+    // GET: Login
+    public IActionResult Index()
+    {
+        return View("Login"); // 確保有 Login.cshtml
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Login(Login login)
+    {
+        if (login == null || string.IsNullOrEmpty(login.Account) || string.IsNullOrEmpty(login.Password))
         {
-            _context = context;
+            ViewData["Message"] = "請輸入帳號和密碼";
+            return View("Login", login);
         }
 
-        // GET: Login
-        public IActionResult Index()  // 改成 Index
+        var result = await _context.Login
+            .Where(m => m.Account == login.Account && m.Password == login.Password)
+            .FirstOrDefaultAsync();
+
+        if (result != null)
         {
-            return View("Login");
+            HttpContext.Session.SetString("Login", result.Account); // 改成與 Layout 一致的 key
+            return RedirectToAction("Index", "BooksManage");
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(Login login)
-        {
-            if (login == null || string.IsNullOrEmpty(login.Account) || string.IsNullOrEmpty(login.Password))
-            {
-                ViewData["Message"] = "請輸入帳號和密碼";
-                return View(login);
-            }
-
-            var result = await _context.Login
-                .Where(m => m.Account == login.Account && m.Password == login.Password)
-                .FirstOrDefaultAsync();
-
-            if (result != null)
-            {
-                return RedirectToAction("Index", "BooksManage");
-            }
-
-            ViewData["Message"] = "帳號或密碼錯誤";
-            return View(login);
-        }
+        ViewData["Message"] = "帳號或密碼錯誤";
+        return View("Login", login); // 返回原始的 login model，而不是 result
     }
 }

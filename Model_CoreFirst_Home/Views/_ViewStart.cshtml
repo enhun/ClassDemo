@@ -6,5 +6,11 @@
     if (Context.Request.RouteValues["controller"]?.ToString() == "BooksManage")
     {
         Layout = "_Layout";
+
+        if (Context.Session.GetString("Login") == null)
+        {
+            Context.Response.Redirect("/Login/Index");
+        }
+
     }
 }
