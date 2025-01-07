@@ -17,7 +17,6 @@ namespace Model_CoreFirst_Home.Models
     [MinLength(8)]
     [MaxLength(16)]
     [DataType(DataType.Password)]
-
     public string Password { get; set; }
     }
 }
