@@ -1,16 +1,20 @@
 ﻿@using Microsoft.AspNetCore.Http
 
 @{
-    Layout = "_UserLayout";
+    Layout = "_UserLayout";//3.3.1 將Viewstart.cshtml中的Layout設定為_UserLayout
 
-    if (Context.Request.RouteValues["controller"]?.ToString() == "BooksManage")
+    //5.3.1 在_ViewStart.cshtml中加入前台及後台使用不同Layout的判斷式
+    if (Context.Request.RouteValues["controller"]?.ToString() == "BooksManage" || Context.Request.RouteValues["controller"]?.ToString() == "LoginsManage")
     {
         Layout = "_Layout";
 
-        if (Context.Session.GetString("Login") == null)
+        //5.3.5 在_ViewStart.cshtml加入未登入則將網頁自動導往/Home/Index的判斷式
+        if (Context.Session.GetString("Manager") == null)
         {
-            Context.Response.Redirect("/Login/Index");
+            Context.Response.Redirect("/Home/Index");
         }
-
     }
+
+
+
 }

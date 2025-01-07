@@ -37,14 +37,15 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-if (!app.Environment.IsDevelopment())
-{
+//if (!app.Environment.IsDevelopment())
+//{
     app.UseExceptionHandler("/Home/Error");
-}
-else
-{
-    app.UseDeveloperExceptionPage();
-}
+app.UseStatusCodePagesWithReExecute("/Home/Error");
+//}
+//else
+//{
+ //   app.UseDeveloperExceptionPage();
+//}
 
 app.UseStaticFiles();
 app.UseRouting();

@@ -32,11 +32,18 @@ public class LoginController : Controller
 
         if (result != null)
         {
-            HttpContext.Session.SetString("Login", result.Account); // 改成與 Layout 一致的 key
+            HttpContext.Session.SetString("Manager", result.Account); // 改成與 Layout 一致的 key
             return RedirectToAction("Index", "BooksManage");
         }
 
         ViewData["Message"] = "帳號或密碼錯誤";
         return View("Login", login); // 返回原始的 login model，而不是 result
     }
+
+    public IActionResult Logout()
+    {
+        HttpContext.Session.Remove("Manager");
+        return RedirectToAction("Index", "Home");
+    }
+
 }

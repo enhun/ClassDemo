@@ -49,6 +49,13 @@ namespace Model_CoreFirst_Home.Controllers
             _logger = logger;
         }
 
+        public IActionResult ExceptionTest()
+        {
+            int a = 0;
+            int s = 100 / a;
+            return View();
+        }
+
         // GET: PostBooks
         public async Task<IActionResult> Index(int page = 1)
         {

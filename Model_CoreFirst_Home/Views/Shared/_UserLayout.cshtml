@@ -13,25 +13,41 @@
 
     <div class="container">
         <header>
-            @* //3.3.2 修改_UserLayout的選單內容及呈現方式 *@
-            <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
-                <a asp-action="Index" asp-controller="Home" type="button" class="btn btn-primary">回首頁</a>
-                <a asp-action="Privacy" asp-controller="Home" type="button" class="btn btn-primary">隱私權</a>
+            <!-- 使用 Flexbox 來分散對齊內容 -->
+            <div class="d-flex justify-content-between align-items-center my-3">
+                <!-- 左側按鈕組 -->
+                <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+                    <a asp-action="Index" asp-controller="Home" class="btn btn-primary">回首頁</a>
+                    <a asp-action="Privacy" asp-controller="Home" class="btn btn-primary">隱私權</a>
 
-                <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                        訪客留言板
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" asp-action="Index" asp-controller="PostBooks">留言列表</a></li>
-                        <li><a class="dropdown-item" asp-action="Create" asp-controller="PostBooks">新增留言</a></li>
-                    </ul>
-
-                    <div>
-                        <a asp-action="Index" asp-controller="Login" type="button" class="btn btn-outline-danger"><i class="bi bi-person-fill"></i> 登入</a>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            訪客留言板
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" asp-action="Index" asp-controller="PostBooks">留言列表</a></li>
+                            <li><a class="dropdown-item" asp-action="Create" asp-controller="PostBooks">新增留言</a></li>
+                        </ul>
                     </div>
-
                 </div>
+
+                <!-- 右側登入按鈕 -->
+                <div>
+                    @if (Context.Session.GetString("Manager") == null)
+                    {
+                        <a asp-action="Index" asp-controller="Login" class="btn btn-outline-danger">
+                            <i class="bi bi-person-fill"></i> 登入
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-action="Logout" asp-controller="Login" class="btn btn-outline-danger">
+                            <i class="fas fa-user"></i> 登出
+                        </a>
+                    }
+                   
+                </div>
+                
             </div>
         </header>
         <main role="main" class="pb-3">
@@ -52,4 +68,3 @@
 
 </body>
 </html>
-

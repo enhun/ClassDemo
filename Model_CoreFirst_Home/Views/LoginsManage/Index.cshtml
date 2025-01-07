@@ -1,0 +1,45 @@
+﻿@model IEnumerable<Model_CoreFirst_Home.Models.Login>
+
+@{
+    ViewData["Title"] = "Index";
+
+    var manager = Context.Session.GetString("Manager");
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Account)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Password)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Account)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Password)
+                </td>
+                <td>
+                    @if (manager != "admin")
+                    {
+                        <a asp-action="Delete" asp-route-id="@item.Account">Delete</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
