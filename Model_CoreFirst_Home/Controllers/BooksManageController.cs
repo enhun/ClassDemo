@@ -54,17 +54,23 @@ namespace MyModel_CodeFirst.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteReBook(string id)
         {
-            var reBook = await _context.ReBook.FindAsync(id);
-            if (reBook != null)
+            try
             {
+                var reBook = await _context.ReBook.FindAsync(id);
+                if (reBook == null)
+                {
+                    return Json(new { success = false, message = "找不到回覆留言" });
+                }
+
                 _context.ReBook.Remove(reBook);
-
+                await _context.SaveChangesAsync();
+                return Json(new { success = true });
             }
-
-            await _context.SaveChangesAsync();
-            return Json(reBook);
+            catch (Exception)
+            {
+                return Json(new { success = false, message = "刪除操作發生錯誤" });
+            }
         }
-
 
         //4.4.7 在BooksManageController中加入GetRebookByViewComponent Action
         public IActionResult GetRebookByViewComponent(string id)

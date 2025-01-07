@@ -1,116 +1,22 @@
-﻿@using Model_CoreFirst_Home.Models
-@model IEnumerable<Model_CoreFirst_Home.Models.ReBook>
+﻿@model IEnumerable<Model_CoreFirst_Home.Models.ReBook>
 
-<!-- 在最上方增加 jQuery 引用 -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<div class="card mb-4">
-    <div class="card-header bg-light">
-        <!-- 移除多餘的大括號 -->
-        <h4 class="mb-0">回覆留言</h4>
-    </div>
-    <div class="card-body">
-        @if (Model.Any())
-        {
-            foreach (var reply in Model)
+@foreach (var item in Model)
+{
+    <div class="d-flex justify-content-between align-items-center border-bottom p-2">
+        <div>
+            <strong>@item.Author 說：</strong>
+            @item.Description
+        </div>
+        <div class="d-flex align-items-center">
+            <span class="text-muted me-2">@item.TimeStamp</span>
+            @if (ViewBag.IsDel == true)
             {
-                <!-- 添加 id 屬性用於刪除操作 -->
-                <div class="border-bottom mb-3 pb-3" id="reply-@reply.ReBookID">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h6 class="mb-0">
-                            <i class="fas fa-user-circle"></i> @reply.Author 說：
-                        </h6>
-                        <!-- 修改這裡：添加一個包含時間戳和刪除按鈕的容器 -->
-                        <div class="d-flex align-items-center">
-                            <small class="text-muted me-3">
-                                @reply.TimeStamp.ToString("yyyy/MM/dd HH:mm:ss")
-                            </small>
-                            <!-- 添加刪除按鈕和表單 -->
-                            <form asp-controller="RePostBooks" asp-action="Delete"
-                                  asp-route-id="@reply.ReBookID"
-                                  method="post"
-                                  class="delete-reply-form d-inline">
-                                @Html.AntiForgeryToken()
-                                <button type="button" class="btn btn-danger btn-sm delete-reply"
-                                        data-id="@reply.ReBookID">
-                                    <i class="fas fa-trash"></i> 刪除
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                    <p class="mt-2 mb-0">@reply.Description</p>
-                </div>
+                <button type="button"
+                        class="btn btn-danger btn-sm delete-rebook"
+                        onclick="delReBook('@item.ReBookID', '@item.BookID')">
+                    刪除
+                </button>
             }
-        }
-        else
-        {
-            <p class="text-center text-muted my-3">
-                目前還沒有回覆留言，來當第一個留言的人吧！
-            </p>
-        }
+        </div>
     </div>
-</div>
-
-<!-- 添加刪除功能的 JavaScript -->
-<script>
-            document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.delete-reply').forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
-                const replyId = this.dataset.id;
-                const form = this.closest('form');
-                const token = form.querySelector('input[name="__RequestVerificationToken"]').value;
-
-                if (confirm('確定要刪除此回覆嗎？')) {
-                    const formData = new FormData();
-                    formData.append('id', replyId);
-                    formData.append('__RequestVerificationToken', token);
-
-                    fetch('/RePostBooks/Delete/' + replyId, {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            document.getElementById('reply-' + replyId).remove();
-                        } else {
-                            alert(data.message || '刪除失敗');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('刪除失敗');
-                    });
-                }
-            });
-        });
-    });
-</script>
-
-<script>
-    window.onerror = function(msg, url, line) {
-        console.log('Error: ' + msg);
-        console.log('URL: ' + url);
-        console.log('Line: ' + line);
-        return false;
-    };
-
-    $(document).ready(function() {
-        console.log('jQuery version:', $.fn.jquery);
-        console.log('Delete buttons found:', $('.delete-reply').length);
-    });
-</script>
-
-<!-- 添加樣式 -->
-<style>
-    .delete-reply-form {
-        margin: 0;
-        padding: 0;
-    }
-
-    .btn-sm {
-        padding: 0.25rem 0.5rem;
-        font-size: 0.875rem;
-    }
-</style>
+}

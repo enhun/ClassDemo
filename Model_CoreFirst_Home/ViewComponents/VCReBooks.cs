@@ -15,6 +15,7 @@ namespace MyModel_CodeFirst.ViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync(string bookId, bool isDel = false)
         {
+            ViewBag.IsDel = isDel;  // 確保這行存在
             var reBooks = await _context.ReBook
                 .Where(r => r.BookID == bookId)
                 .OrderByDescending(r => r.TimeStamp)

@@ -11,5 +11,8 @@ namespace Model_CoreFirst_Home.Models
 
         public virtual DbSet<Book> Book { get; set; }
         public virtual DbSet<ReBook> ReBook { get; set; }
+
+
+        public virtual DbSet<Login> Login { get; set; }
     }
 }

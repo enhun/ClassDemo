@@ -1,14 +1,10 @@
 ﻿@model IEnumerable<Model_CoreFirst_Home.Models.Book>
-
 @{
     ViewData["Title"] = "訪客留言板管理";
 }
+@Html.AntiForgeryToken()
 
 <h3 class="text-center">@ViewData["Title"]</h3>
-
-
-
-@* //4.1.6 依喜好自行修改介面 *@
 <div class="row">
     @foreach (var item in Model)
     {
@@ -26,18 +22,12 @@
                         </div>
                     </div>
                     <div class="col-2 d-flex justify-content-center align-items-center">
-                        <form asp-action="Delete" asp-route-id="@item.BookID">
-                            <button type="submit" class="btn btn-danger" onclick="return confirm('確定要刪除嗎？')">刪除</button>
-                        </form>
-
-                        @* //4.3.6 使用Bootstrap的Collapse Component來呈現留言資料 *@
-                        <button class="btn btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#B@(item.BookID)">@* //4.3.7 將呈現回覆留言的id改為動態產生 *@
+                        <button type="button" class="btn btn-danger me-2" onclick="delBook('@item.BookID', this)">刪除</button>
+                        <button class="btn btn-success" type="button" data-bs-toggle="collapse" data-bs-target="#B@(item.BookID)">
                             顯示
                         </button>
                     </div>
-                    @* //4.3.1 在Index View中加入呈現回覆留言的ViewComponent *@
-                    <div id="B@(item.BookID)" class="collapse">@* //4.3.7 將呈現回覆留言的id改為動態產生 *@
-                        @* //4.3.5 在Index View中呈現回覆留言的ViewComponent增加isDel參數的傳遞 *@
+                    <div id="B@(item.BookID)" class="collapse">
                         @await Component.InvokeAsync("VCRebooks", new { bookID = item.BookID, isDel = true })
                     </div>
                 </div>
@@ -46,24 +36,31 @@
     }
 </div>
 
-@* //4.4.6 撰寫Ajax程式以呼叫DeleteReBook Action *@
 @section Scripts {
     <script>
-        function delReBook(reBookId, BookID) {
-            if (confirm("確定要刪除嗎？")) {
-
-                $.ajax({
-                  type:"post",
-                  url:"/BooksManage/DeleteReBook",
-                  data:{id:reBookId},
-                  success:function(){
-                    //4.4.8 利用GetRebookByViewComponent Action局部更新畫面以顯示刪除後的回覆留言資料畫面
-                      $('#B'+BookID).load("/BooksManage/GetRebookByViewComponent/"+BookID);
-                  }
-                });
-
-
+        function delReBook(reBookId, bookId) {
+            if (!confirm('確定要刪除此回復嗎？')) {
+                return;
             }
+
+            $.ajax({
+                url: '/BooksManage/DeleteReBook',
+                type: 'POST',
+                data: { id: reBookId },
+                success: function (result) {
+                    if (result.success) {
+                        alert('回覆已成功刪除！');
+                        // 重新載入回覆區域
+                        $('#B' + bookId).load('/BooksManage/GetRebookByViewComponent/' + bookId);
+                    } else {
+                        alert(result.message || '刪除失敗');
+                    }
+                },
+                error: function () {
+                    alert('刪除操作失敗');
+                }
+            });
         }
     </script>
+}
 }
