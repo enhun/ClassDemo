@@ -1,3 +1,10 @@
-﻿@{
-    Layout = "_Layout";
+﻿@using Microsoft.AspNetCore.Http
+
+@{
+    Layout = "_UserLayout";
+
+    if (Context.Request.RouteValues["controller"]?.ToString() == "BooksManage")
+    {
+        Layout = "_Layout";
+    }
 }

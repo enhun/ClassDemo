@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - MyModel_CodeFirst</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/MyModel_CodeFirst.styles.css" asp-append-version="true" />
 </head>
@@ -25,6 +26,11 @@
                         <li><a class="dropdown-item" asp-action="Index" asp-controller="PostBooks">留言列表</a></li>
                         <li><a class="dropdown-item" asp-action="Create" asp-controller="PostBooks">新增留言</a></li>
                     </ul>
+
+                    <div>
+                        <a asp-action="Login" asp-controller="Login" type="button" class="btn btn-outline-danger"><i class="bi bi-person-fill"></i> 登入</a>
+                    </div>
+
                 </div>
             </div>
         </header>

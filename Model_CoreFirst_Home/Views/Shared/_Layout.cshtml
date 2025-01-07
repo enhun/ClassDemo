@@ -3,65 +3,113 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - 美食分享平台</title>
+    <title>@ViewData["Title"] - 後台管理系統</title>
     <!-- CSS -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Model_CoreFirst_Home.styles.css" asp-append-version="true" />
+    <!-- 新增 Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f8f9fa;
+        }
+
         .navbar {
-            box-shadow: 0 2px 4px rgba(0,0,0,.1);
+            background-color: #2c3e50 !important;
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,.1);
         }
 
         .navbar-brand {
-            font-weight: bold;
-        }
-
-        .footer {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            white-space: nowrap;
-            line-height: 60px;
-            background-color: white;
-            box-shadow: 0 -2px 4px rgba(0,0,0,.1);
-        }
-
-        main {
-            margin-bottom: 70px;
-        }
-
-        .alert {
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,.1);
+            font-weight: 700;
+            color: #fff !important;
+            font-size: 1.5rem;
         }
 
         .nav-link {
-            transition: color 0.3s ease;
+            color: #ecf0f1 !important;
+            font-weight: 500;
+            padding: 0.8rem 1rem !important;
+            border-radius: 5px;
+            transition: all 0.3s ease;
         }
 
             .nav-link:hover {
-                color: #0056b3 !important;
+                background-color: #34495e;
+                color: #fff !important;
+            }
+
+            .nav-link i {
+                margin-right: 8px;
             }
 
         .container {
-            padding-left: 15px;
-            padding-right: 15px;
+            max-width: 1400px;
+            padding: 2rem;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,.05);
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .alert {
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,.1);
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .footer {
+            background-color: #2c3e50;
+            color: #fff !important;
+            padding: 1rem 0;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            box-shadow: 0 -2px 10px rgba(0,0,0,.1);
+        }
+
+            .footer a {
+                color: #3498db !important;
+                text-decoration: none;
+                transition: color 0.3s ease;
+            }
+
+                .footer a:hover {
+                    color: #2980b9 !important;
+                }
+
+        main {
+            margin-bottom: 70px;
         }
     </style>
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-dark">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    <i class="fas fa-utensils"></i> 美食分享
+                    <i class="fas fa-cogs"></i> 後台管理系統
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
                         aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -70,18 +118,18 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Home" asp-action="Index">
-                                <i class="fas fa-home"></i> 首頁
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">
+                                <i class="fas fa-home"></i> 主頁
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="PostBooks" asp-action="Index">
-                                <i class="fas fa-clipboard-list"></i> 美食分享牆
+                            <a class="nav-link" asp-controller="PostBooks" asp-action="Index">
+                                <i class="fas fa-clipboard-list"></i> 訪客留言版
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Home" asp-action="Privacy">
-                                <i class="fas fa-shield-alt"></i> 隱私權政策
+                            <a class="nav-link" asp-controller="Home" asp-action="Privacy">
+                                <i class="fas fa-shield-alt"></i> 隱私權
                             </a>
                         </li>
                     </ul>
@@ -93,28 +141,30 @@
     <div class="container">
         @if (TempData["Success"] != null)
         {
-            <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
                 <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         }
         @if (TempData["Error"] != null)
         {
-            <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         }
-        <main role="main" class="pb-3">
+        <main role="main">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; @DateTime.Now.Year - 美食分享平台 - <a asp-controller="Home" asp-action="Privacy">隱私權政策</a>
-        </div>
-    </footer>
+    @* <footer class="footer"> *@
+    @*     <div class="container text-center"> *@
+    @*         <span>&copy; @DateTime.Now.Year - 後台管理系統</span> *@
+    @*         <span class="mx-2">|</span> *@
+    @*         <a asp-controller="Home" asp-action="Privacy">系統資訊</a> *@
+    @*     </div> *@
+    @* </footer> *@
 
     <!-- JavaScript -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -125,24 +175,32 @@
     @await RenderSectionAsync("Scripts", required: false)
 
     <script>
-        // 全域錯誤處理
+        // 錯誤處理
         window.onerror = function(msg, url, line, col, error) {
-            console.error("Error: " + msg + "\nurl: " + url + "\nline: " + line);
+            console.error("錯誤信息:", msg);
+            console.error("錯誤位置:", url);
+            console.error("行號:", line);
+
+            Toast.fire({
+                icon: 'error',
+                title: '發生錯誤，請稍後再試'
+            });
+
             return false;
         };
 
-        // 自動關閉警告訊息
+        // 警告訊息自動關閉
         document.addEventListener('DOMContentLoaded', function() {
             var alerts = document.querySelectorAll('.alert');
             alerts.forEach(function(alert) {
                 setTimeout(function() {
                     var bsAlert = new bootstrap.Alert(alert);
                     bsAlert.close();
-                }, 3000);
+                }, 5000);
             });
         });
 
-        // 設定 SweetAlert2 預設配置
+        // SweetAlert2 配置
         const Toast = Swal.mixin({
             toast: true,
             position: 'top-end',
